@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Staff Profile | Quiz Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --accent: #00d9ff;
+            --purple: #8b5cf6;
+            --bg: #070b18;
+            --panel: rgba(18, 28, 50, .88);
+            --muted: #aab7d0;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh; color: #f8fafc;
+            font-family: Poppins, sans-serif;
+            background:
+                radial-gradient(ellipse at 10% 10%, #00d9ff18, transparent 38%),
+                radial-gradient(ellipse at 90% 80%, #8b5cf620, transparent 38%),
+                var(--bg);
+        }
+        body::before {
+            content: ""; position: fixed; inset: 0; pointer-events: none;
+            background-image: linear-gradient(#00d9ff09 1px, transparent 1px),
+                              linear-gradient(90deg, #00d9ff09 1px, transparent 1px);
+            background-size: 34px 34px;
+        }
+        header {
+            position: relative; display: flex; justify-content: space-between;
+            align-items: center; flex-wrap: wrap; gap: 14px;
+            padding: 20px 5%; background: #070b18dd;
+            border-bottom: 1px solid #00d9ff38;
+        }
+        .brand { font-size: 21px; font-weight: 800; }
+        .brand span { color: var(--accent); }
+        .muted { color: var(--muted); font-size: 12px; }
+        a.btn {
+            display: inline-block; padding: 10px 16px; border-radius: 12px;
+            border: 1px solid #00d9ff80; color: var(--accent);
+            text-decoration: none; font-size: 12px; font-weight: 600;
+            transition: .25s;
+        }
+        a.btn:hover {
+            background: var(--accent); color: #06111b;
+            box-shadow: 0 0 22px #00d9ff55; transform: translateY(-2px);
+        }
+        main { position: relative; max-width: 1150px; width: 92%; margin: 35px auto; }
+        .hero {
+            display: flex; align-items: center; gap: 22px; padding: 28px;
+            border: 1px solid #00d9ff40; border-radius: 23px;
+            background: linear-gradient(120deg, #00d9ff15, #8b5cf615), var(--panel);
+            animation: rise .6s ease both;
+        }
+        .avatar {
+            width: 76px; height: 76px; flex-shrink: 0; display: grid;
+            place-items: center; border-radius: 22px;
+            color: #06111b; font-size: 30px; font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            box-shadow: 0 0 28px #00d9ff30;
+        }
+        .eyebrow { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+        h1 { margin: 5px 0; font-size: clamp(24px, 4vw, 35px); overflow-wrap: anywhere; }
+        h2 { font-size: 18px; margin: 0; }
+        h3 { font-size: 15px; margin: 0 0 8px; }
+        .role {
+            display: inline-block; margin-top: 8px; padding: 5px 12px;
+            border: 1px solid #00d9ff55; border-radius: 30px;
+            color: var(--accent); background: #00d9ff12;
+            font-size: 10px; letter-spacing: 1.5px; font-weight: 700;
+        }
+        .section-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 28px 0 15px; }
+        .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+        .card, .panel {
+            min-width: 0; padding: 22px; border-radius: 19px;
+            border: 1px solid #94a3b828; background: var(--panel);
+            box-shadow: 0 12px 32px #0003;
+            animation: rise .7s ease both; transition: .25s;
+        }
+        .card:hover { transform: translateY(-5px); border-color: #00d9ff88; }
+        .stat-label { color: var(--muted); font-size: 12px; }
+        .number { color: var(--accent); font-size: 32px; font-weight: 800; margin: 7px 0; }
+        .icon { font-size: 23px; margin-bottom: 8px; }
+        .grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 17px; margin-top: 18px; }
+        .hint { color: var(--muted); font-size: 12px; line-height: 1.7; }
+        .chart-wrap { position: relative; height: 270px; margin-top: 15px; }
+        .student-list { max-height: 330px; overflow: auto; }
+        .student {
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 10px; padding: 12px; margin: 9px 0;
+            border: 1px solid #94a3b822; border-radius: 12px; background: #ffffff06;
+        }
+        .student strong, .student small { display: block; overflow-wrap: anywhere; }
+        .student strong { font-size: 12px; }
+        .student small { color: var(--muted); font-size: 10px; margin-top: 4px; }
+        .empty { color: var(--muted); text-align: center; padding: 30px 8px; font-size: 12px; }
+        footer { position: relative; text-align: center; color: #7786a2; font-size: 11px; padding: 25px; }
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(17px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 750px) {
+            .stats, .grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 450px) {
+            .hero { align-items: flex-start; flex-direction: column; }
+            main { width: 94%; margin-top: 22px; }
+            .card, .panel { padding: 17px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <div class="brand">QUIZ <span>MASTER</span></div>
+        <div class="muted">Staff account and analytics</div>
+    </div>
+    <a class="btn" href="{{ url_for('staff_dashboard') }}">← Staff Dashboard</a>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="avatar">{{ (user.username or 'S')[:1]|upper }}</div>
+        <div>
+            <div class="eyebrow">Account overview</div>
+            <h1>{{ user.username }}</h1>
+            <div class="muted">{{ user.email or 'Email not provided' }}</div>
+            <span class="role">STAFF ACCOUNT</span>
+        </div>
+    </section>
+
+    <div class="section-title">
+        <h2>📡 Workspace Overview</h2>
+        <span class="muted">Database statistics</span>
+    </div>
+
+    <section class="stats">
+        <article class="card">
+            <div class="icon">🧠</div>
+            <div class="stat-label">Total Quizzes</div>
+            <div class="number count-up" data-value="{{ total_quizzes }}">0</div>
+            <div class="stat-label">Available quizzes</div>
+        </article>
+        <article class="card">
+            <div class="icon">👥</div>
+            <div class="stat-label">Registered Students</div>
+            <div class="number count-up" data-value="{{ total_students }}">0</div>
+            <div class="stat-label">Student accounts</div>
+        </article>
+        <article class="card">
+            <div class="icon">📝</div>
+            <div class="stat-label">Recorded Attempts</div>
+            <div class="number count-up" data-value="{{ total_attempts }}">0</div>
+            <div class="stat-label">Student quiz records</div>
+        </article>
+    </section>
+
+    <!-- Chart data is placed in HTML attributes, not JavaScript/Jinja expressions. -->
+    <div id="participationData"
+         hidden
+         data-attempted="{{ attempted_students }}"
+         data-not-attempted="{{ not_attempted_students }}">
+    </div>
+
+    <section class="grid">
+        <article class="panel">
+            <h3>📈 Student Participation</h3>
+            <p class="hint">Students with recorded attempts compared with students without attempts.</p>
+            <div class="chart-wrap">
+                <canvas id="participationChart" aria-label="Student participation chart"></canvas>
+            </div>
+            <p id="chartFallback" class="empty" hidden>Chart library unavailable.</p>
+        </article>
+
+        <article class="panel">
+            <h3>🧑‍🎓 Student Directory</h3>
+            <p class="hint">Registered student accounts in the system.</p>
+            <div class="student-list">
+                {% for student in students %}
+                <div class="student">
+                    <div>
+                        <strong>{{ student.username }}</strong>
+                        <small>{{ student.email or 'Email not provided' }}</small>
+                    </div>
+                    <span aria-hidden="true">◈</span>
+                </div>
+                {% else %}
+                <div class="empty">No student accounts found.</div>
+                {% endfor %}
+            </div>
+        </article>
+    </section>
+
+    <div style="text-align:center;margin-top:25px">
+        <a class="btn" href="{{ url_for('staff_dashboard') }}">Return to Staff Dashboard →</a>
+    </div>
+</main>
+
+<footer>QUIZ MASTER · STAFF PORTAL</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".count-up").forEach(function (element) {
+        const target = Number(element.dataset.value || 0);
+        if (!Number.isFinite(target)) {
+            element.textContent = "0";
+            return;
+        }
+
+        const start = performance.now();
+        function animate(now) {
+            const progress = Math.min((now - start) / 800, 1);
+            element.textContent = String(
+                Math.round(target * (1 - Math.pow(1 - progress, 3)))
+            );
+            if (progress < 1) requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+    });
+
+    const dataElement = document.getElementById("participationData");
+    const attempted = Math.max(0, Number(dataElement.dataset.attempted || 0));
+    const notAttempted = Math.max(0, Number(dataElement.dataset.notAttempted || 0));
+    const canvas = document.getElementById("participationChart");
+    const fallback = document.getElementById("chartFallback");
+
+    if (typeof Chart === "undefined") {
+        canvas.hidden = true;
+        fallback.hidden = false;
+        return;
+    }
+
+    new Chart(canvas, {
+        type: "doughnut",
+        data: {
+            labels: ["Attempted quizzes", "No recorded attempts"],
+            datasets: [{
+                data: [attempted, notAttempted],
+                backgroundColor: ["#00d9ff", "#8b5cf6"],
+                borderColor: "#121c32",
+                borderWidth: 4,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "67%",
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        color: "#dce7f8",
+                        padding: 18,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>
